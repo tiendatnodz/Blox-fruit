@@ -1,0 +1,73 @@
+-- 🌙 Park Moon Auto Farm (Blox Fruits)
+-- Tự động farm cấp, cấu trúc giống script bạn đưa
+
+local _ENV = (getgenv or getrenv or getfenv)()
+local Players = game:GetService("Players")
+local lp = Players.LocalPlayer
+
+getgenv().AutoFarm = getgenv().AutoFarm or true
+getgenv().FarmRange = 60
+getgenv().AttackDelay = 0.15
+
+local function IsMob(model)
+    local hum = model:FindFirstChildOfClass("Humanoid")
+    local root = model:FindFirstChild("HumanoidRootPart")
+    return hum and root and hum.Health > 0
+end
+
+local function NearestMob()
+    if not lp.Character or not lp.Character:FindFirstChild("HumanoidRootPart") then return end
+    local pos = lp.Character.HumanoidRootPart.Position
+    local nearest, dist = nil, math.huge
+    for _, v in pairs(workspace:GetDescendants()) do
+        if v:IsA("Model") and IsMob(v) then
+            local root = v:FindFirstChild("HumanoidRootPart")
+            if root then
+                local d = (root.Position - pos).Magnitude
+                if d < dist and d <= getgenv().FarmRange then
+                    nearest, dist = v, d
+                end
+            end
+        end
+    end
+    return nearest
+end
+
+local function EquipTool()
+    local char = lp.Character
+    if not char then return end
+    local bp = lp:FindFirstChild("Backpack")
+    if bp then
+        for _, t in pairs(bp:GetChildren()) do
+            if t:IsA("Tool") then
+                t.Parent = char
+                return t
+            end
+        end
+    end
+    return char:FindFirstChildOfClass("Tool")
+end
+
+task.spawn(function()
+    while task.wait() do
+        if getgenv().AutoFarm then
+            local mob = NearestMob()
+            if mob and lp.Character and lp.Character:FindFirstChild("HumanoidRootPart") then
+                local root = mob:FindFirstChild("HumanoidRootPart")
+                if root then
+                    -- Teleport sát mob
+                    lp.Character.HumanoidRootPart.CFrame = root.CFrame * CFrame.new(0,0,3)
+
+                    -- Equip vũ khí và đánh
+                    local tool = EquipTool()
+                    if tool then
+                        tool:Activate()
+                    end
+                    task.wait(getgenv().AttackDelay)
+                end
+            end
+        end
+    end
+end)
+
+print("🌙 Park Moon AutoFarm đã chạy! Bật/tắt: getgenv().AutoFarm = true/false")
