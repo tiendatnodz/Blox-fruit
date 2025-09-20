@@ -1,20 +1,22 @@
--- 🌙 Park Moon Auto Farm (Blox Fruits)
--- Tự động farm cấp, cấu trúc giống script bạn đưa
-
+-- 🌙 AutoFarm Blox Fruits (Bay trên đầu quái)
 local _ENV = (getgenv or getrenv or getfenv)()
 local Players = game:GetService("Players")
 local lp = Players.LocalPlayer
 
-getgenv().AutoFarm = getgenv().AutoFarm or true
+-- Config
+getgenv().AutoFarm = true
 getgenv().FarmRange = 60
 getgenv().AttackDelay = 0.15
+getgenv().HeightAboveMob = 7  -- độ cao bay trên đầu quái
 
+-- Kiểm tra mob
 local function IsMob(model)
     local hum = model:FindFirstChildOfClass("Humanoid")
     local root = model:FindFirstChild("HumanoidRootPart")
     return hum and root and hum.Health > 0
 end
 
+-- Tìm mob gần nhất
 local function NearestMob()
     if not lp.Character or not lp.Character:FindFirstChild("HumanoidRootPart") then return end
     local pos = lp.Character.HumanoidRootPart.Position
@@ -33,6 +35,7 @@ local function NearestMob()
     return nearest
 end
 
+-- Cầm vũ khí
 local function EquipTool()
     local char = lp.Character
     if not char then return end
@@ -48,6 +51,7 @@ local function EquipTool()
     return char:FindFirstChildOfClass("Tool")
 end
 
+-- Loop AutoFarm
 task.spawn(function()
     while task.wait() do
         if getgenv().AutoFarm then
@@ -55,10 +59,10 @@ task.spawn(function()
             if mob and lp.Character and lp.Character:FindFirstChild("HumanoidRootPart") then
                 local root = mob:FindFirstChild("HumanoidRootPart")
                 if root then
-                    -- Teleport sát mob
-                    lp.Character.HumanoidRootPart.CFrame = root.CFrame * CFrame.new(0,0,3)
+                    -- Bay lên trên đầu mob
+                    lp.Character.HumanoidRootPart.CFrame = root.CFrame * CFrame.new(0, getgenv().HeightAboveMob, 0)
 
-                    -- Equip vũ khí và đánh
+                    -- Equip tool và đánh
                     local tool = EquipTool()
                     if tool then
                         tool:Activate()
@@ -70,4 +74,4 @@ task.spawn(function()
     end
 end)
 
-print("🌙 Park Moon AutoFarm đã chạy! Bật/tắt: getgenv().AutoFarm = true/false")
+print("🌙 AutoFarm (Bay trên đầu quái) Loaded | Gõ: getgenv().AutoFarm = true/false để bật hoặc tắt")
